@@ -1,6 +1,6 @@
 console.log('app.js init');
 
-// http://api.nbp.pl/api/exchangerates/rates/a/gbp/last/10/?format=json ostatnie 10 notowan funta
+// http://api.nbp.pl/api/exchangerates/rates/a/gbp/last/10/?format=json last 10 GBP rates
 
 let availableCurrencies = [];
 let codes = [];
@@ -35,29 +35,48 @@ function populateSelect() {
     option.textContent = code;
     curSel.appendChild(option);
   });
+
+  curSel.addEventListener('change', () => {
+    fetchData(this.value);
+  });
 }
 
-function fetchData() {
-  const respone = fetch(ratesUrl);
-  chartData = response.json();
-  
+async function fetchData(currencyCode = 'gbp') {
+  try {
+    let proxyUrl = 'https://cors-anywhere.herokuapp.com/';  
+    let targetUrl = `http://api.nbp.pl/api/exchangerates/rates/a/${currencyCode}/last/10/?format=json`;
+    ratesUrl = proxyUrl + targetUrl;
+
+    const response = await fetch(ratesUrl);
+    const data = await response.json();
+    chartData = data.rates.map(rate => rate.mid);
+
+    chartProperties.x = data.rates.map(rate => rate.effectiveDate);
+    chartProperties.y = chartData;
+
+    drawChart();
+  } catch (error) {
+    console.error('Error fetching data: ', error);
+  }
 }
 
 
 
 var chartProperties = {
-  x: [1, 2, 3, 4, 5],
-  y: [chartData],
+  //x: [1, 2, 3, 4, 5],
+  //y: [chartData],
   mode: 'lines+markers',
   name: 'spline',
   line: {shape: 'spline'},
   type: 'scatter'
 };
 
-fetchCodes();
+fetchCodes().then(() => {
+  fetchData('gbp');
+});
 
 function drawChart() {
-  
+  Plotly.newPlot('chart', [chartProperties]);
 }
 
 
