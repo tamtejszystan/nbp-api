@@ -36,8 +36,8 @@ function populateSelect() {
     curSel.appendChild(option);
   });
 
-  curSel.addEventListener('change', () => {
-    fetchData(this.value);
+  curSel.addEventListener('change', (event) => {
+    fetchData(event.target.value);
   });
 }
 
@@ -63,8 +63,6 @@ async function fetchData(currencyCode = 'gbp') {
 
 
 var chartProperties = {
-  //x: [1, 2, 3, 4, 5],
-  //y: [chartData],
   mode: 'lines+markers',
   name: 'spline',
   line: {shape: 'spline'},
